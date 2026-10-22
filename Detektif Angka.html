@@ -3,39 +3,43 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@600;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@600;800&display=swap">
 <style>
-/* Layout: one column worksheet; each mission is a panel holding a deck of 16 cards, a step counter and a feedback line. */
+/* Layout: a formal worksheet in one column. A navy header block with the identity table, then lettered sections A-I in reading order; activities hold a deck of 16 cards. */
 :root {
-  --paper: #eef1f7;
+  --paper: #eceff5;
   --surface: #ffffff;
-  --ink: #172033;
-  --muted: #586276;
-  --line: #d7dce7;
+  --ink: #16213a;
+  --muted: #56607a;
+  --line: #d4dae6;
+  --head: #1f2f5c;
+  --head-ink: #ffffff;
+  --head-soft: #c9d3ee;
   --cb: #2b3a67;
   --cb2: #34477d;
-  --accent: #e8a33d;
+  --accent: #e3a033;
   --accent-ink: #3a2600;
-  --range: #dfe7fb;
+  --range: #dfe6f8;
   --good: #23784b;
   --good-bg: #e3f3ea;
   --warn: #9a4a0f;
   --warn-bg: #fbeedd;
   --focus: #3b5bdb;
-  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-text: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --paper: #10141e; --surface: #182031; --ink: #e8ecf4; --muted: #9ba4b7; --line: #2c3549;
+    --paper: #0f131c; --surface: #171e2e; --ink: #e7ebf3; --muted: #9aa3b6; --line: #2b3448;
+    --head: #24345f; --head-ink: #ffffff; --head-soft: #b9c4e4;
     --cb: #3b4d88; --cb2: #4659a0; --accent: #f0b456; --accent-ink: #2a1b00; --range: #22305a;
     --good: #6fcf97; --good-bg: #183528; --warn: #f3b37a; --warn-bg: #3a2814; --focus: #8ea6ff;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --paper: #10141e; --surface: #182031; --ink: #e8ecf4; --muted: #9ba4b7; --line: #2c3549;
+  --paper: #0f131c; --surface: #171e2e; --ink: #e7ebf3; --muted: #9aa3b6; --line: #2b3448;
+  --head: #24345f; --head-ink: #ffffff; --head-soft: #b9c4e4;
   --cb: #3b4d88; --cb2: #4659a0; --accent: #f0b456; --accent-ink: #2a1b00; --range: #22305a;
   --good: #6fcf97; --good-bg: #183528; --warn: #f3b37a; --warn-bg: #3a2814; --focus: #8ea6ff;
   color-scheme: dark;
@@ -44,56 +48,78 @@
 [hidden] { display: none !important; }
 body {
   background: var(--paper); color: var(--ink);
-  font: 400 16px/1.55 var(--f-body);
+  font: 400 16px/1.6 var(--f-text);
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
   padding-block: 24px 56px;
 }
-.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 20px; }
-h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
-h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
-h2 { font-size: clamp(1.25rem, 3.4vw, 1.55rem); font-weight: 800; }
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 16px; }
+h1, h2, h3 { font-family: var(--f-text); text-wrap: balance; margin: 0; line-height: 1.25; }
 p { margin: 0; }
-.eyebrow { font: 700 0.78rem/1.2 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+ol, ul { margin: 0; }
+b, strong { font-weight: 700; }
 
-header.top { display: grid; gap: 10px; padding-top: 8px; }
-header.top .lead { color: var(--muted); max-width: 60ch; font-size: 1.05rem; }
+/* Header */
+.doc-head { background: var(--head); color: var(--head-ink); border-radius: 12px; padding: 24px; display: grid; gap: 18px; }
+.doc-head .kicker { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--head-soft); }
+.doc-head h1 { font-size: clamp(1.6rem, 4.6vw, 2.25rem); font-weight: 800; letter-spacing: -0.01em; }
+.doc-head .sub { color: var(--head-soft); font-size: 1rem; }
+.idtable { width: 100%; border-collapse: collapse; font-size: 0.95rem; color: var(--head-ink); }
+.idtable th, .idtable td { text-align: left; vertical-align: top; padding: 7px 0; border-top: 1px solid rgba(255,255,255,0.16); }
+.idtable th { width: 34%; font-weight: 600; color: var(--head-soft); padding-right: 12px; }
+.idtable td { font-weight: 600; color: var(--head-ink); }
 
-.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+/* Sections */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 16px; min-width: 0; }
+.sec { display: flex; align-items: center; gap: 12px; font-size: clamp(1.1rem, 3vw, 1.3rem); font-weight: 800; }
+.sec-no { flex: none; display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 8px; background: var(--head); color: var(--head-ink); font-size: 0.95rem; font-weight: 800; }
+.sec small { display: block; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lead { color: var(--muted); max-width: 66ch; }
+.steps { padding-left: 22px; display: grid; gap: 6px; }
+.steps li::marker { font-weight: 700; color: var(--muted); }
+.subhead { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
 .names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .names label { display: grid; gap: 4px; font-weight: 700; font-size: 0.9rem; }
 .names input {
-  font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px;
+  font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 8px;
   border: 1px solid var(--line); background: var(--paper); color: var(--ink); min-width: 0;
 }
 .names input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
-
 .progress { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 0.82rem; font-weight: 700; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
 .pill.done { background: var(--good-bg); color: var(--good); border-color: transparent; }
 .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.6; }
 
-.mission-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
-.mission-head > .mh-text { display: grid; gap: 6px; min-width: 0; flex: 1 1 320px; }
-.rule { color: var(--muted); max-width: 62ch; }
+/* Summary table */
+.tablebox { overflow-x: auto; }
+table.grid { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+table.grid th, table.grid td { text-align: left; vertical-align: top; padding: 9px 12px; border: 1px solid var(--line); }
+table.grid thead th { background: var(--paper); font-size: 0.82rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+table.grid tbody th { font-weight: 700; width: 26%; }
+.def { padding: 12px 14px; border-left: 4px solid var(--head); background: var(--paper); border-radius: 0 8px 8px 0; }
+
+/* Activity */
+.act-top { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: flex-start; }
+.act-top .steps { flex: 1 1 360px; min-width: 0; }
 .stats { display: flex; gap: 8px; flex-wrap: wrap; }
-.stat { display: grid; gap: 2px; padding: 8px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); min-width: 104px; }
-.stat span { font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat { display: grid; gap: 2px; padding: 8px 14px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); min-width: 104px; }
+.stat span { font-size: 0.72rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
 .stat b { font: 800 1.5rem/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
 .stat.target { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .stat.target span { color: var(--accent-ink); opacity: 0.8; }
 
 .deck { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
 @media (max-width: 640px) { .deck { grid-template-columns: repeat(4, minmax(0, 1fr)); } .names { grid-template-columns: 1fr; } }
-.slot { display: grid; gap: 4px; justify-items: center; border-radius: 12px; padding: 4px; transition: background 0.3s; }
+.slot { display: grid; gap: 4px; justify-items: center; border-radius: 10px; padding: 4px; transition: background 0.3s; }
 .slot.inrange { background: var(--range); }
 .slot small { font: 600 0.72rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
-.card { width: 100%; aspect-ratio: 3 / 4; perspective: 600px; border: 0; background: none; padding: 0; cursor: pointer; border-radius: 10px; }
+.card { width: 100%; aspect-ratio: 3 / 4; perspective: 600px; border: 0; background: none; padding: 0; cursor: pointer; border-radius: 8px; }
 .card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .card .inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(.3,.7,.3,1); }
 .card.open .inner { transform: rotateY(180deg); }
-.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; display: grid; place-items: center; }
-.back { background: repeating-linear-gradient(45deg, var(--cb) 0 7px, var(--cb2) 7px 14px); border: 2px solid var(--cb); color: #ffffffd9; font: 800 clamp(1rem, 3vw, 1.4rem) var(--f-display); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8px; display: grid; place-items: center; }
+.back { background: repeating-linear-gradient(45deg, var(--cb) 0 7px, var(--cb2) 7px 14px); border: 2px solid var(--cb); color: #ffffffd9; font: 800 clamp(1rem, 3vw, 1.35rem) var(--f-text); }
 .front { transform: rotateY(180deg); background: var(--surface); border: 2px solid var(--line); color: var(--ink); font: 800 clamp(1rem, 3.6vw, 1.5rem) var(--f-mono); font-variant-numeric: tabular-nums; }
 .card.found .front { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
 .slot.out { opacity: 0.32; }
@@ -103,34 +129,24 @@ header.top .lead { color: var(--muted); max-width: 60ch; font-size: 1.05rem; }
 @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--accent); } 50% { box-shadow: 0 0 0 6px var(--accent); } }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 
-.msg { padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); min-height: 48px; }
+.msg { padding: 12px 14px; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); min-height: 48px; }
 .msg.good { background: var(--good-bg); color: var(--good); border-color: transparent; font-weight: 700; }
 .msg.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
-
-.decide { display: grid; gap: 10px; padding: 14px; border-radius: 12px; border: 2px solid var(--accent); }
+.decide { display: grid; gap: 10px; padding: 14px; border-radius: 10px; border: 2px solid var(--accent); }
 .decide p { font-weight: 700; }
-.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+
 .btn {
-  font: 700 0.95rem var(--f-body); padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  font: 700 0.95rem var(--f-text); padding: 10px 16px; border-radius: 8px; cursor: pointer;
   border: 1px solid var(--line); background: var(--surface); color: var(--ink);
   display: inline-flex; align-items: center; text-decoration: none;
 }
 .btn:hover { border-color: var(--ink); }
-.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn.primary { background: var(--head); color: var(--head-ink); border-color: var(--head); }
 .btn.send { background: var(--good); color: #fff; border-color: var(--good); font-size: 1rem; padding: 12px 20px; }
 .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
-.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.checklist li { display: flex; align-items: center; gap: 10px; color: var(--muted); }
-.checklist li::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); }
-.checklist li.ok { color: var(--ink); }
-.checklist li.ok::before { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 3px var(--surface); }
-details.guru { background: var(--surface); border: 1px dashed var(--line); border-radius: 16px; padding: 16px 20px; }
-details.guru summary { cursor: pointer; font-weight: 700; }
-details.guru[open] summary { margin-bottom: 12px; }
-details.guru ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
-.codebox { position: relative; display: grid; gap: 8px; min-width: 0; }
-.codebox pre { margin: 0; overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: 600 0.78rem/1.5 var(--f-mono); color: var(--ink); max-height: 320px; }
 
+/* Analysis */
 .compare { display: grid; gap: 12px; }
 .bar { display: grid; grid-template-columns: 120px minmax(0, 1fr) 92px; align-items: center; gap: 10px; }
 .bar .name { font-weight: 700; }
@@ -144,31 +160,42 @@ details.guru ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px;
 .q:first-of-type { border-top: 0; padding-top: 0; }
 .q p.ask { font-weight: 700; }
 .opts { display: flex; flex-wrap: wrap; gap: 8px; }
-.opt { font: 400 0.95rem var(--f-body); padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; }
+.opt { font: 400 0.95rem var(--f-text); padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; }
 .opt:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 .opt[disabled] { cursor: default; }
 .opt.right { background: var(--good-bg); color: var(--good); border-color: var(--good); font-weight: 700; }
 .opt.wrong { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
 .explain { font-size: 0.95rem; color: var(--muted); }
 
-.recap table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-.recap th, .recap td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
-.recap th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.recap td.num { font-family: var(--f-mono); font-weight: 800; }
-.tablebox { overflow-x: auto; }
-.recap-top { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+/* Recap */
+.recap-top { display: flex; flex-wrap: wrap; gap: 8px 28px; }
 .recap-top div { display: grid; }
-.recap-top span { font-size: 0.78rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.recap-top span { font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
 .recap-top b { font-size: 1.05rem; }
+table.grid td.num { font-family: var(--f-mono); font-weight: 800; font-variant-numeric: tabular-nums; }
 .note { font-size: 0.92rem; color: var(--muted); }
-@media (max-width: 480px) { .recap th, .recap td { padding: 8px 6px; font-size: 0.85rem; } }
+@media (max-width: 480px) { table.grid th, table.grid td { padding: 8px 6px; font-size: 0.85rem; } }
+
 .reflabel { font-weight: 700; }
 #refleksi-teks {
-  font: inherit; width: 100%; min-height: 150px; padding: 12px 14px; border-radius: 12px; line-height: 1.55;
+  font: inherit; width: 100%; min-height: 150px; padding: 12px 14px; border-radius: 8px; line-height: 1.6;
   border: 1px solid var(--line); background: var(--paper); color: var(--ink); resize: vertical;
 }
 #refleksi-teks:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
 .refmeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.checklist { list-style: none; padding: 0; display: grid; gap: 8px; }
+.checklist li { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.checklist li::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); }
+.checklist li.ok { color: var(--ink); }
+.checklist li.ok::before { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 3px var(--surface); }
+
+details.guru { background: var(--surface); border: 1px dashed var(--line); border-radius: 12px; padding: 16px 20px; }
+details.guru summary { cursor: pointer; font-weight: 700; }
+details.guru[open] summary { margin-bottom: 12px; }
+details.guru ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+.codebox { display: grid; gap: 8px; min-width: 0; }
+.codebox pre { margin: 0; overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px; font: 600 0.78rem/1.5 var(--f-mono); color: var(--ink); max-height: 320px; }
 
 @media (prefers-reduced-motion: reduce) {
   .card .inner, .bar .fill, .slot { transition: none; }
@@ -178,123 +205,156 @@ details.guru ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px;
 </style>
 
 <div class="wrap">
-  <header class="top">
-    <span class="eyebrow">LKPD Interaktif · KKA Kelas X · Bab III Perbandingan Algoritma</span>
-    <h1>Detektif Angka</h1>
-    <p class="lead">Cari angka di balik 16 kartu dengan dua cara: Linear Search dan Binary Search. Hitung langkahnya, lalu bandingkan mana yang lebih cepat.</p>
+  <header class="doc-head">
+    <div style="display:grid;gap:8px">
+      <span class="kicker">Lembar Kerja Peserta Didik (LKPD)</span>
+      <h1>Detektif Angka: Membandingkan Linear Search dan Binary Search</h1>
+    </div>
+    <table class="idtable">
+      <tbody>
+        <tr><th scope="row">Mata Pelajaran</th><td>Koding dan Kecerdasan Artifisial (KKA)</td></tr>
+        <tr><th scope="row">Kelas / Semester</th><td>X / Ganjil</td></tr>
+        <tr><th scope="row">Materi</th><td>BAB III – Perbandingan Algoritma</td></tr>
+        <tr><th scope="row">Sub-materi</th><td>Linear Search dan Binary Search</td></tr>
+        <tr><th scope="row">Alokasi Waktu</th><td>15 menit</td></tr>
+      </tbody>
+    </table>
   </header>
 
-  <section class="panel" aria-label="Identitas">
+  <section class="panel" aria-labelledby="h-id">
+    <h2 class="sec" id="h-id"><span class="sec-no" aria-hidden="true">✎</span>Identitas Peserta Didik</h2>
     <div class="names">
-      <label for="nama1">Nama<input id="nama1" type="text" autocomplete="off" placeholder="Tulis namamu"></label>
+      <label for="nama1">Nama<input id="nama1" type="text" autocomplete="off" placeholder="Tuliskan nama lengkap"></label>
       <label for="nama2">Kelas<input id="nama2" type="text" autocomplete="off" placeholder="Contoh: X-1"></label>
     </div>
-    <div class="progress" id="progress"></div>
+    <div class="progress" id="progress" aria-label="Kemajuan pengerjaan"></div>
   </section>
 
-  <!-- Misi 1 -->
-  <section class="panel" id="misi1" aria-labelledby="h-m1">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Misi 1</span>
-        <h2 id="h-m1">Linear Search: periksa satu per satu</h2>
-        <p class="rule">Kartu disusun acak. Buka kartu berurutan dari nomor 1 sampai kamu menemukan angka yang dicari.</p>
-      </div>
+  <section class="panel" aria-labelledby="h-a">
+    <h2 class="sec" id="h-a"><span class="sec-no">A</span>Tujuan Pembelajaran</h2>
+    <p class="lead">Setelah mengerjakan LKPD ini, peserta didik diharapkan mampu:</p>
+    <ol class="steps">
+      <li>menjelaskan cara kerja algoritma Linear Search dan Binary Search;</li>
+      <li>membandingkan jumlah langkah kedua algoritma dalam mencari data;</li>
+      <li>menentukan algoritma yang tepat sesuai dengan kondisi data.</li>
+    </ol>
+  </section>
+
+  <section class="panel" aria-labelledby="h-b">
+    <h2 class="sec" id="h-b"><span class="sec-no">B</span>Petunjuk Pengerjaan</h2>
+    <ol class="steps">
+      <li>Isilah nama dan kelas pada bagian Identitas Peserta Didik.</li>
+      <li>Bacalah Ringkasan Materi sebelum mengerjakan kegiatan.</li>
+      <li>Kerjakan Kegiatan 1, Kegiatan 2, dan Kegiatan 3 secara berurutan.</li>
+      <li>Tuliskan refleksi dengan kalimatmu sendiri.</li>
+      <li>Periksa kelengkapan pada bagian Pengumpulan Hasil, lalu kirimkan hasil kepada guru satu kali saja.</li>
+    </ol>
+  </section>
+
+  <section class="panel" aria-labelledby="h-c">
+    <h2 class="sec" id="h-c"><span class="sec-no">C</span>Ringkasan Materi</h2>
+    <p class="def"><b>Algoritma</b> adalah urutan langkah yang logis, sistematis, dan terstruktur untuk menyelesaikan suatu masalah. Setiap algoritma memiliki <b>input</b>, <b>proses</b>, dan <b>output</b>. Algoritma dapat dibandingkan berdasarkan kecepatan (jumlah langkah), syarat data, dan kemudahan penggunaannya.</p>
+    <div class="tablebox">
+      <table class="grid">
+        <thead><tr><th>Aspek</th><th>Linear Search</th><th>Binary Search</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Cara kerja</th><td>Memeriksa data satu per satu dari awal sampai data ditemukan</td><td>Memeriksa data di tengah, lalu membuang separuh data yang tidak mungkin berisi target</td></tr>
+          <tr><th scope="row">Syarat data</th><td>Data tidak harus terurut</td><td>Data harus sudah terurut</td></tr>
+          <tr><th scope="row">Kecepatan pada data besar</th><td>Lambat</td><td>Cepat</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Kegiatan 1 -->
+  <section class="panel" id="kegiatan1" aria-labelledby="h-d">
+    <h2 class="sec" id="h-d"><span class="sec-no">D</span><span><small>Kegiatan 1</small>Pencarian dengan Linear Search</span></h2>
+    <div class="act-top">
+      <ol class="steps">
+        <li>Perhatikan 16 kartu tertutup yang disusun secara acak.</li>
+        <li>Bukalah kartu secara berurutan, dimulai dari kartu nomor 1.</li>
+        <li>Hentikan pencarian ketika angka yang dicari ditemukan.</li>
+        <li>Perhatikan jumlah langkah yang tercatat.</li>
+      </ol>
       <div class="stats">
-        <div class="stat target"><span>Dicari</span><b class="tval">44</b></div>
+        <div class="stat target"><span>Angka dicari</span><b class="tval">44</b></div>
         <div class="stat"><span>Langkah</span><b id="lin-steps">0</b></div>
       </div>
     </div>
     <div class="deck" id="lin-deck"></div>
-    <p class="msg" id="lin-msg" aria-live="polite">Mulai dari kartu nomor 1.</p>
-    <div class="row"><button class="btn" type="button" id="lin-reset">Ulangi Misi 1</button></div>
+    <p class="msg" id="lin-msg" aria-live="polite">Mulailah dari kartu nomor 1.</p>
+    <div class="row"><button class="btn" type="button" id="lin-reset">Ulangi Kegiatan 1</button></div>
   </section>
 
-  <!-- Misi 2 -->
-  <section class="panel" id="misi2" aria-labelledby="h-m2">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Misi 2</span>
-        <h2 id="h-m2">Binary Search: langsung ke tengah</h2>
-        <p class="rule">Kartu sudah urut dari kecil ke besar. Buka kartu tengah dari kartu yang masih terang. Kalau jumlahnya genap, pilih tengah sebelah kiri. Lalu tentukan: angka yang dicari lebih besar atau lebih kecil?</p>
-      </div>
+  <!-- Kegiatan 2 -->
+  <section class="panel" id="kegiatan2" aria-labelledby="h-e">
+    <h2 class="sec" id="h-e"><span class="sec-no">E</span><span><small>Kegiatan 2</small>Pencarian dengan Binary Search</span></h2>
+    <div class="act-top">
+      <ol class="steps">
+        <li>Perhatikan 16 kartu yang sudah terurut dari angka terkecil ke terbesar.</li>
+        <li>Bukalah kartu yang berada di tengah dari kartu yang masih terang. Jika jumlah kartu genap, pilih kartu tengah sebelah kiri.</li>
+        <li>Bandingkan angka pada kartu dengan angka yang dicari, lalu pilih <b>Lebih kecil</b> atau <b>Lebih besar</b>.</li>
+        <li>Ulangi langkah 2 dan 3 sampai angka ditemukan atau kartu terang habis.</li>
+      </ol>
       <div class="stats">
-        <div class="stat target"><span>Dicari</span><b class="tval">44</b></div>
+        <div class="stat target"><span>Angka dicari</span><b class="tval">44</b></div>
         <div class="stat"><span>Langkah</span><b id="bin-steps">0</b></div>
       </div>
     </div>
     <div class="deck" id="bin-deck"></div>
     <div class="decide" id="bin-decide" hidden>
-      <p id="bin-q">Angka yang dicari lebih besar atau lebih kecil?</p>
+      <p id="bin-q">Apakah angka yang dicari lebih besar atau lebih kecil?</p>
       <div class="row">
-        <button class="btn" type="button" id="btn-kecil">Lebih kecil, buang kanan</button>
-        <button class="btn" type="button" id="btn-besar">Lebih besar, buang kiri</button>
+        <button class="btn" type="button" id="btn-kecil">Lebih kecil (buang bagian kanan)</button>
+        <button class="btn" type="button" id="btn-besar">Lebih besar (buang bagian kiri)</button>
       </div>
     </div>
-    <p class="msg" id="bin-msg" aria-live="polite">Ada 16 kartu terang. Pilih kartu tengahnya.</p>
-    <div class="row"><button class="btn" type="button" id="bin-reset">Ulangi Misi 2</button></div>
+    <p class="msg" id="bin-msg" aria-live="polite">Terdapat 16 kartu terang. Pilihlah kartu tengahnya.</p>
+    <div class="row"><button class="btn" type="button" id="bin-reset">Ulangi Kegiatan 2</button></div>
   </section>
 
-  <!-- Misi 3 -->
-  <section class="panel" id="misi3" aria-labelledby="h-m3">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Misi 3</span>
-        <h2 id="h-m3">Bandingkan hasilnya</h2>
-        <p class="rule">Lihat jumlah langkah kedua cara, lalu jawab tiga pertanyaan. Setiap pertanyaan hanya bisa dijawab sekali.</p>
-      </div>
-    </div>
+  <!-- Kegiatan 3 -->
+  <section class="panel" id="kegiatan3" aria-labelledby="h-f">
+    <h2 class="sec" id="h-f"><span class="sec-no">F</span><span><small>Kegiatan 3</small>Analisis Perbandingan</span></h2>
+    <p class="lead">Amati grafik perbandingan jumlah langkah, kemudian jawablah pertanyaan berikut. Setiap pertanyaan hanya dapat dijawab satu kali.</p>
     <div class="compare" id="compare"></div>
+    <p class="subhead">Pertanyaan</p>
     <div id="questions"></div>
   </section>
 
-  <!-- Rekap -->
-  <section class="panel recap" id="rekap" aria-labelledby="h-rk">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Rekap</span>
-        <h2 id="h-rk">Hasil Analisa</h2>
-        <p class="rule">Tunjukkan rekap ini ke guru atau ambil tangkapan layar.</p>
-      </div>
-    </div>
+  <!-- Hasil Analisa -->
+  <section class="panel" id="rekap" aria-labelledby="h-g">
+    <h2 class="sec" id="h-g"><span class="sec-no">G</span>Hasil Analisa</h2>
+    <p class="lead">Bagian ini merangkum hasil kegiatanmu dan ikut terkirim kepada guru.</p>
     <div class="recap-top" id="recap-top"></div>
     <div class="tablebox">
-      <table>
-        <thead><tr><th>Angka dicari</th><th>Linear Search</th><th>Binary Search</th><th>Hasil</th></tr></thead>
+      <table class="grid">
+        <thead><tr><th>Angka dicari</th><th>Linear Search</th><th>Binary Search</th><th>Keterangan</th></tr></thead>
         <tbody id="history"></tbody>
       </table>
     </div>
+    <p class="subhead">Latihan tambahan</p>
+    <p class="note">Pilih angka acak, termasuk angka yang tidak ada pada kartu, lalu ulangi Kegiatan 1 dan 2. Perhatikan berapa langkah terbanyak yang dibutuhkan Binary Search.</p>
     <div class="row">
-      <button class="btn primary" type="button" id="btn-lain">Tantangan: coba angka lain</button>
+      <button class="btn primary" type="button" id="btn-lain">Coba angka lain</button>
       <button class="btn" type="button" id="btn-awal">Mulai dari awal</button>
     </div>
-    <p class="note">Tantangan memilih angka acak, kadang angka yang tidak ada di kartu. Perhatikan: berapa langkah Binary Search paling banyak?</p>
   </section>
 
   <!-- Refleksi -->
-  <section class="panel" id="refleksi" aria-labelledby="h-rf">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Refleksi</span>
-        <h2 id="h-rf">Cara mana yang terbaik?</h2>
-        <p class="rule">Setelah mencoba kedua cara, jelaskan dengan kata-katamu sendiri: mana yang terbaik antara Linear Search dan Binary Search, dan kapan masing-masing cocok dipakai?</p>
-      </div>
-    </div>
-    <label class="reflabel" for="refleksi-teks">Jawaban refleksimu</label>
-    <textarea id="refleksi-teks" rows="6" maxlength="1500" placeholder="Menurut saya, cara yang terbaik adalah ... karena ... Tetapi cara yang lain lebih cocok jika ..."></textarea>
-    <div class="refmeta"><span id="ref-count">0 kata</span><span id="ref-status">Tersimpan otomatis di perangkat ini</span></div>
-    <p class="note">Petunjuk: lihat jumlah langkah di Hasil Analisa, apakah datanya sudah urut, dan seberapa banyak datanya.</p>
+  <section class="panel" id="refleksi" aria-labelledby="h-h">
+    <h2 class="sec" id="h-h"><span class="sec-no">H</span>Refleksi</h2>
+    <p class="lead">Berdasarkan kegiatan yang telah kamu lakukan, algoritma manakah yang terbaik antara Linear Search dan Binary Search? Jelaskan alasanmu dan sebutkan kondisi yang tepat untuk menggunakan masing-masing algoritma.</p>
+    <label class="reflabel" for="refleksi-teks">Jawaban refleksi</label>
+    <textarea id="refleksi-teks" rows="6" maxlength="1500" placeholder="Menurut saya, algoritma yang terbaik adalah ... karena ... Namun, algoritma yang lain lebih tepat digunakan jika ..."></textarea>
+    <div class="refmeta"><span id="ref-count">0 kata</span><span>Tersimpan otomatis di perangkat ini</span></div>
+    <p class="note">Petunjuk: perhatikan jumlah langkah pada Hasil Analisa, apakah data sudah terurut, dan seberapa banyak datanya.</p>
   </section>
 
-  <!-- Kirim -->
-  <section class="panel" id="kirim" aria-labelledby="h-kr">
-    <div class="mission-head">
-      <div class="mh-text">
-        <span class="eyebrow">Langkah terakhir</span>
-        <h2 id="h-kr">Kirim hasil ke guru</h2>
-        <p class="rule">Hasilmu masuk otomatis ke spreadsheet guru. Lengkapi semua bagian di bawah, lalu tekan tombol kirim satu kali saja.</p>
-      </div>
-    </div>
+  <!-- Pengumpulan -->
+  <section class="panel" id="kirim" aria-labelledby="h-i">
+    <h2 class="sec" id="h-i"><span class="sec-no">I</span>Pengumpulan Hasil</h2>
+    <p class="lead">Hasil pekerjaan akan tersimpan otomatis di spreadsheet guru. Pastikan semua bagian berikut sudah lengkap, lalu tekan tombol kirim satu kali saja.</p>
     <ul class="checklist" id="checklist"></ul>
     <div class="row">
       <button class="btn send" type="button" id="btn-cek">Kirim ke spreadsheet guru</button>
@@ -369,15 +429,15 @@ function aman(v) {
   var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsGheMLScux_2_LRsORbY5KymLwL-gU31C1rnueSfmtXcN5biz8eQJa2_eLhGaoqHu/exec';
 
   var QUESTIONS = [
-    { id: 'q1', ask: 'Dari percobaan mencari angka 44, cara mana yang lebih cepat?',
+    { id: 'q1', ask: 'Berdasarkan percobaan mencari angka 44, algoritma manakah yang lebih cepat?',
       opts: ['Linear Search', 'Binary Search'], right: 1,
-      why: 'Binary Search membuang separuh kartu setiap langkah, jadi 44 ketemu dalam 4 langkah. Linear Search butuh 15 langkah.' },
-    { id: 'q2', ask: 'Apa syarat agar Binary Search bisa dipakai?',
-      opts: ['Data harus sudah urut', 'Jumlah data harus genap', 'Data harus sedikit'], right: 0,
-      why: 'Binary Search memutuskan buang kiri atau kanan dari kartu tengah. Itu hanya benar kalau data sudah urut.' },
-    { id: 'q3', ask: 'Panitia punya daftar 20 nama tamu yang ditulis sesuai urutan datang, belum diurutkan. Cara mana yang cocok untuk mencari satu nama?',
+      why: 'Binary Search membuang separuh kartu pada setiap langkah sehingga angka 44 ditemukan dalam 4 langkah, sedangkan Linear Search memerlukan 15 langkah.' },
+    { id: 'q2', ask: 'Apakah syarat agar Binary Search dapat digunakan?',
+      opts: ['Data harus sudah terurut', 'Jumlah data harus genap', 'Jumlah data harus sedikit'], right: 0,
+      why: 'Binary Search menentukan bagian kiri atau kanan yang dibuang berdasarkan kartu tengah. Cara ini hanya benar apabila data sudah terurut.' },
+    { id: 'q3', ask: 'Panitia memiliki daftar 20 nama tamu yang ditulis sesuai urutan kedatangan dan belum diurutkan. Algoritma manakah yang tepat untuk mencari satu nama?',
       opts: ['Linear Search', 'Binary Search'], right: 0,
-      why: 'Datanya belum urut, jadi Binary Search tidak bisa langsung dipakai. Linear Search memeriksa satu per satu dan tetap berhasil.' }
+      why: 'Data belum terurut sehingga Binary Search tidak dapat langsung digunakan. Linear Search memeriksa data satu per satu dan tetap dapat menemukan nama tersebut.' }
   ];
 
   function fresh() {
@@ -393,8 +453,10 @@ function aman(v) {
     };
   }
   var S = fresh();
-  var linMsg = { text: 'Mulai dari kartu nomor 1.', tone: '' };
-  var binMsg = { text: 'Ada 16 kartu terang. Pilih kartu tengahnya.', tone: '' };
+  var LIN_START = 'Mulailah dari kartu nomor 1.';
+  var BIN_START = 'Terdapat 16 kartu terang. Pilihlah kartu tengahnya.';
+  var linMsg = { text: LIN_START, tone: '' };
+  var binMsg = { text: BIN_START, tone: '' };
 
   var $ = function (id) { return document.getElementById(id); };
 
@@ -409,7 +471,7 @@ function aman(v) {
     return null;
   }
 
-  // ---------- deck building ----------
+  // ---------- kartu ----------
   function buildDeck(el, values, onPick) {
     el.innerHTML = '';
     values.forEach(function (v, idx) {
@@ -433,14 +495,14 @@ function aman(v) {
     btn.classList.add('shake');
   }
 
-  // ---------- Misi 1: Linear ----------
+  // ---------- Kegiatan 1: Linear Search ----------
   function pickLinear(idx, btn) {
     var L = S.lin;
-    if (L.done) { linMsg = { text: 'Misi 1 sudah selesai. Klik "Ulangi Misi 1" untuk mencoba lagi.', tone: '' }; renderLinear(); return; }
+    if (L.done) { linMsg = { text: 'Kegiatan 1 sudah selesai. Tekan "Ulangi Kegiatan 1" untuk mencoba kembali.', tone: '' }; renderLinear(); return; }
     if (L.opened.indexOf(idx) !== -1) return;
     if (idx !== L.i) {
       shake(btn);
-      linMsg = { text: 'Linear Search memeriksa kartu berurutan dari kiri. Buka kartu nomor ' + (L.i + 1) + ' dulu.', tone: 'warn' };
+      linMsg = { text: 'Linear Search memeriksa kartu secara berurutan dari kiri. Bukalah kartu nomor ' + (L.i + 1) + ' terlebih dahulu.', tone: 'warn' };
       renderLinear();
       return;
     }
@@ -449,14 +511,14 @@ function aman(v) {
     var v = ACAK[idx];
     if (v === S.target) {
       L.done = true; L.found = true;
-      linMsg = { text: 'Ketemu! Angka ' + S.target + ' ada di kartu nomor ' + (idx + 1) + '. Kamu membuka ' + L.steps + ' kartu.', tone: 'good' };
+      linMsg = { text: 'Angka ' + S.target + ' ditemukan pada kartu nomor ' + (idx + 1) + '. Jumlah langkah: ' + L.steps + '.', tone: 'good' };
     } else {
       L.i++;
       if (L.i >= ACAK.length) {
         L.done = true; L.found = false;
-        linMsg = { text: 'Semua kartu sudah dibuka dan ' + S.target + ' tidak ada. Linear Search membuka ' + L.steps + ' kartu.', tone: 'good' };
+        linMsg = { text: 'Semua kartu sudah dibuka dan angka ' + S.target + ' tidak ditemukan. Jumlah langkah: ' + L.steps + '.', tone: 'good' };
       } else {
-        linMsg = { text: 'Bukan ' + v + '. Lanjut ke kartu nomor ' + (L.i + 1) + '.', tone: '' };
+        linMsg = { text: 'Kartu berisi ' + v + ', bukan angka yang dicari. Lanjutkan ke kartu nomor ' + (L.i + 1) + '.', tone: '' };
       }
     }
     afterChange();
@@ -479,21 +541,21 @@ function aman(v) {
     m.className = 'msg' + (linMsg.tone ? ' ' + linMsg.tone : '');
   }
 
-  // ---------- Misi 2: Binary ----------
+  // ---------- Kegiatan 2: Binary Search ----------
   function mid() { return Math.floor((S.bin.lo + S.bin.hi) / 2); }
 
   function pickBinary(idx, btn) {
     var B = S.bin;
-    if (B.done) { binMsg = { text: 'Misi 2 sudah selesai. Klik "Ulangi Misi 2" untuk mencoba lagi.', tone: '' }; renderBinary(); return; }
+    if (B.done) { binMsg = { text: 'Kegiatan 2 sudah selesai. Tekan "Ulangi Kegiatan 2" untuk mencoba kembali.', tone: '' }; renderBinary(); return; }
     if (B.waiting !== null) {
       shake(btn);
-      binMsg = { text: 'Jawab dulu: ' + S.target + ' lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?', tone: 'warn' };
+      binMsg = { text: 'Jawablah terlebih dahulu: apakah ' + S.target + ' lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?', tone: 'warn' };
       renderBinary();
       return;
     }
     if (idx < B.lo || idx > B.hi) {
       shake(btn);
-      binMsg = { text: 'Kartu itu sudah dibuang. Pilih dari kartu yang masih terang.', tone: 'warn' };
+      binMsg = { text: 'Kartu tersebut sudah dibuang. Pilihlah dari kartu yang masih terang.', tone: 'warn' };
       renderBinary();
       return;
     }
@@ -502,8 +564,8 @@ function aman(v) {
       shake(btn);
       B.wrong++;
       var count = B.hi - B.lo + 1;
-      var t = 'Belum tepat. Ada ' + count + ' kartu terang, pilih yang di tengah.';
-      if (count % 2 === 0) t += ' Jumlahnya genap, jadi pilih tengah sebelah kiri.';
+      var t = 'Belum tepat. Terdapat ' + count + ' kartu terang; pilihlah kartu yang berada di tengah.';
+      if (count % 2 === 0) t += ' Karena jumlahnya genap, pilih kartu tengah sebelah kiri.';
       if (B.wrong >= 2) t += ' Kartu yang berkedip adalah kartu tengahnya.';
       binMsg = { text: t, tone: 'warn' };
       renderBinary();
@@ -515,10 +577,10 @@ function aman(v) {
     var v = URUT[idx];
     if (v === S.target) {
       B.done = true; B.found = true;
-      binMsg = { text: 'Ketemu! Angka ' + S.target + ' ditemukan dalam ' + B.steps + ' langkah.', tone: 'good' };
+      binMsg = { text: 'Angka ' + S.target + ' ditemukan. Jumlah langkah: ' + B.steps + '.', tone: 'good' };
     } else {
       B.waiting = idx;
-      binMsg = { text: 'Kartu tengah berisi ' + v + '. Sekarang tentukan arah pencarian.', tone: '' };
+      binMsg = { text: 'Kartu tengah berisi ' + v + '. Tentukan arah pencarian berikutnya.', tone: '' };
     }
     afterChange();
   }
@@ -529,7 +591,7 @@ function aman(v) {
     var v = URUT[B.waiting];
     var correct = S.target > v ? 'besar' : 'kecil';
     if (choice !== correct) {
-      binMsg = { text: 'Coba lagi. Bandingkan ' + S.target + ' dengan ' + v + ': mana yang lebih besar?', tone: 'warn' };
+      binMsg = { text: 'Belum tepat. Bandingkan kembali angka ' + S.target + ' dengan ' + v + '.', tone: 'warn' };
       renderBinary();
       return;
     }
@@ -537,10 +599,10 @@ function aman(v) {
     B.waiting = null;
     if (B.lo > B.hi) {
       B.done = true; B.found = false;
-      binMsg = { text: 'Kartu terang habis, jadi ' + S.target + ' tidak ada. Binary Search hanya butuh ' + B.steps + ' langkah untuk memastikannya.', tone: 'good' };
+      binMsg = { text: 'Kartu terang sudah habis sehingga angka ' + S.target + ' tidak ada. Jumlah langkah: ' + B.steps + '.', tone: 'good' };
     } else {
       var left = B.hi - B.lo + 1;
-      binMsg = { text: 'Tepat! Separuh kartu dibuang. Sisa ' + left + ' kartu terang, pilih kartu tengahnya.', tone: '' };
+      binMsg = { text: 'Tepat. Separuh kartu telah dibuang dan tersisa ' + left + ' kartu terang. Pilihlah kartu tengahnya.', tone: '' };
     }
     afterChange();
   }
@@ -563,29 +625,28 @@ function aman(v) {
       btn.setAttribute('aria-label', 'Kartu nomor ' + (k + 1) + (open ? ', berisi ' + URUT[k] : ', tertutup') + (inRange ? '' : ', sudah dibuang'));
     }
     $('bin-steps').textContent = B.steps;
-    var d = $('bin-decide');
-    d.hidden = B.waiting === null;
+    $('bin-decide').hidden = B.waiting === null;
     if (B.waiting !== null) {
-      $('bin-q').textContent = 'Angka yang dicari (' + S.target + ') lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?';
+      $('bin-q').textContent = 'Apakah angka yang dicari (' + S.target + ') lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?';
     }
     var el = $('bin-msg');
     el.textContent = binMsg.text;
     el.className = 'msg' + (binMsg.tone ? ' ' + binMsg.tone : '');
   }
 
-  // ---------- Misi 3 ----------
+  // ---------- Kegiatan 3 ----------
   function renderCompare() {
     var c = $('compare');
     var L = S.lin, B = S.bin;
     if (!L.done || !B.done) {
-      c.innerHTML = '<p class="msg">Selesaikan Misi 1 dan Misi 2 untuk angka ' + S.target + ', nanti perbandingan langkahnya muncul di sini.</p>';
+      c.innerHTML = '<p class="msg">Selesaikan Kegiatan 1 dan Kegiatan 2 untuk angka ' + S.target + '. Grafik perbandingan akan tampil di sini.</p>';
       return;
     }
     var max = 16;
     c.innerHTML =
       '<div class="bar lin"><span class="name">Linear Search</span><span class="track"><span class="fill" style="width:' + (L.steps / max * 100) + '%"></span></span><span class="val">' + L.steps + ' langkah</span></div>' +
       '<div class="bar bin"><span class="name">Binary Search</span><span class="track"><span class="fill" style="width:' + (B.steps / max * 100) + '%"></span></span><span class="val">' + B.steps + ' langkah</span></div>' +
-      '<p class="note">Panjang batang dihitung dari 16 kartu, yaitu langkah terbanyak yang mungkin.</p>';
+      '<p class="note">Panjang batang dihitung dari 16 kartu, yaitu jumlah langkah terbanyak yang mungkin.</p>';
   }
 
   function buildQuestions() {
@@ -594,7 +655,6 @@ function aman(v) {
     QUESTIONS.forEach(function (q, n) {
       var wrap = document.createElement('div');
       wrap.className = 'q';
-      wrap.id = 'wrap-' + q.id;
       var p = document.createElement('p');
       p.className = 'ask';
       p.textContent = (n + 1) + '. ' + q.ask;
@@ -605,7 +665,7 @@ function aman(v) {
         b.type = 'button';
         b.className = 'opt';
         b.id = q.id + '-o' + oi;
-        b.textContent = o;
+        b.textContent = String.fromCharCode(65 + oi) + '. ' + o;
         b.addEventListener('click', function () {
           if (S.answers[q.id] !== undefined) return;
           S.answers[q.id] = oi;
@@ -635,7 +695,7 @@ function aman(v) {
       });
       var ex = $(q.id + '-ex');
       if (a === undefined) ex.textContent = '';
-      else ex.textContent = (a === q.right ? 'Benar. ' : 'Belum tepat. ') + q.why;
+      else ex.textContent = (a === q.right ? 'Jawaban benar. ' : 'Jawaban belum tepat. ') + q.why;
     });
   }
 
@@ -648,7 +708,7 @@ function aman(v) {
     return QUESTIONS.filter(function (q) { return S.answers[q.id] !== undefined; }).length;
   }
 
-  // ---------- Rekap ----------
+  // ---------- Hasil Analisa ----------
   function renderRecap() {
     var nama = (S.names.a || '').trim() || 'Belum diisi';
     var kelas = (S.names.b || '').trim() || 'Belum diisi';
@@ -661,23 +721,11 @@ function aman(v) {
     $('rk-kelas').textContent = kelas;
     var tb = $('history');
     if (!S.history.length) {
-      tb.innerHTML = '<tr><td colspan="4" class="note">Belum ada percobaan yang selesai. Selesaikan Misi 1 dan 2.</td></tr>';
+      tb.innerHTML = '<tr><td colspan="4" class="note">Belum ada percobaan yang selesai. Selesaikan Kegiatan 1 dan Kegiatan 2.</td></tr>';
       return;
     }
     tb.innerHTML = S.history.map(function (h) {
-      return '<tr><td class="num">' + h.target + '</td><td class="num">' + h.lin + ' langkah</td><td class="num">' + h.bin + ' langkah</td><td>' + (h.found ? 'Ditemukan' : 'Tidak ada di kartu') + '</td></tr>';
-    }).join('');
-  }
-
-  function renderProgress() {
-    var items = [
-      ['Misi 1', S.lin.done],
-      ['Misi 2', S.bin.done],
-      ['Misi 3', answeredCount() === 3],
-      ['Refleksi', wordCount(S.refleksi) >= 5]
-    ];
-    $('progress').innerHTML = items.map(function (it) {
-      return '<span class="pill' + (it[1] ? ' done' : '') + '"><span class="dot"></span>' + it[0] + ' · ' + (it[1] ? 'selesai' : 'belum') + '</span>';
+      return '<tr><td class="num">' + h.target + '</td><td class="num">' + h.lin + ' langkah</td><td class="num">' + h.bin + ' langkah</td><td>' + (h.found ? 'Ditemukan' : 'Tidak ada pada kartu') + '</td></tr>';
     }).join('');
   }
 
@@ -688,7 +736,19 @@ function aman(v) {
     $('ref-count').textContent = wordCount(S.refleksi) + ' kata';
   }
 
-  // ---------- Kirim ke spreadsheet ----------
+  function renderProgress() {
+    var items = [
+      ['Kegiatan 1', S.lin.done],
+      ['Kegiatan 2', S.bin.done],
+      ['Kegiatan 3', answeredCount() === 3],
+      ['Refleksi', wordCount(S.refleksi) >= 5]
+    ];
+    $('progress').innerHTML = items.map(function (it) {
+      return '<span class="pill' + (it[1] ? ' done' : '') + '"><span class="dot"></span>' + it[0] + ' · ' + (it[1] ? 'selesai' : 'belum') + '</span>';
+    }).join('');
+  }
+
+  // ---------- Pengumpulan ----------
   function result44() {
     return S.history.filter(function (h) { return h.target === 44; })[0] || null;
   }
@@ -696,8 +756,8 @@ function aman(v) {
     return [
       ['Nama sudah diisi', !!(S.names.a || '').trim(), 'isi nama'],
       ['Kelas sudah diisi', !!(S.names.b || '').trim(), 'isi kelas'],
-      ['Misi 1 dan Misi 2 selesai untuk angka 44', !!result44(), 'selesaikan Misi 1 dan Misi 2 untuk angka 44'],
-      ['Tiga pertanyaan Misi 3 sudah dijawab', answeredCount() === 3, 'jawab tiga pertanyaan Misi 3'],
+      ['Kegiatan 1 dan Kegiatan 2 selesai untuk angka 44', !!result44(), 'selesaikan Kegiatan 1 dan Kegiatan 2 untuk angka 44'],
+      ['Tiga pertanyaan Kegiatan 3 sudah dijawab', answeredCount() === 3, 'jawab tiga pertanyaan Kegiatan 3'],
       ['Refleksi minimal 5 kata', wordCount(S.refleksi) >= 5, 'tulis refleksi minimal 5 kata']
     ];
   }
@@ -771,24 +831,24 @@ function aman(v) {
     renderAll();
   }
 
-  // ---------- resets ----------
+  // ---------- ulangi ----------
   function resetLinear() {
     S.lin = { i: 0, steps: 0, done: false, found: false, opened: [] };
     S.recorded = false;
-    linMsg = { text: 'Mulai dari kartu nomor 1.', tone: '' };
+    linMsg = { text: LIN_START, tone: '' };
   }
   function resetBinary() {
     S.bin = { lo: 0, hi: 15, steps: 0, done: false, found: false, opened: [], waiting: null, wrong: 0 };
     S.recorded = false;
-    binMsg = { text: 'Ada 16 kartu terang. Pilih kartu tengahnya.', tone: '' };
+    binMsg = { text: BIN_START, tone: '' };
   }
 
   function msgsFromState() {
-    if (S.lin.done) linMsg = { text: S.lin.found ? 'Ketemu! Kamu membuka ' + S.lin.steps + ' kartu.' : 'Angka ' + S.target + ' tidak ada. Linear Search membuka ' + S.lin.steps + ' kartu.', tone: 'good' };
-    else if (S.lin.steps) linMsg = { text: 'Lanjut ke kartu nomor ' + (S.lin.i + 1) + '.', tone: '' };
-    if (S.bin.done) binMsg = { text: S.bin.found ? 'Ketemu dalam ' + S.bin.steps + ' langkah.' : 'Angka ' + S.target + ' tidak ada. Binary Search butuh ' + S.bin.steps + ' langkah.', tone: 'good' };
-    else if (S.bin.waiting !== null) binMsg = { text: 'Kartu tengah berisi ' + URUT[S.bin.waiting] + '. Tentukan arah pencarian.', tone: '' };
-    else if (S.bin.steps) binMsg = { text: 'Sisa ' + (S.bin.hi - S.bin.lo + 1) + ' kartu terang, pilih kartu tengahnya.', tone: '' };
+    if (S.lin.done) linMsg = { text: S.lin.found ? 'Angka ' + S.target + ' ditemukan. Jumlah langkah: ' + S.lin.steps + '.' : 'Angka ' + S.target + ' tidak ditemukan. Jumlah langkah: ' + S.lin.steps + '.', tone: 'good' };
+    else if (S.lin.steps) linMsg = { text: 'Lanjutkan ke kartu nomor ' + (S.lin.i + 1) + '.', tone: '' };
+    if (S.bin.done) binMsg = { text: S.bin.found ? 'Angka ' + S.target + ' ditemukan. Jumlah langkah: ' + S.bin.steps + '.' : 'Angka ' + S.target + ' tidak ada. Jumlah langkah: ' + S.bin.steps + '.', tone: 'good' };
+    else if (S.bin.waiting !== null) binMsg = { text: 'Kartu tengah berisi ' + URUT[S.bin.waiting] + '. Tentukan arah pencarian berikutnya.', tone: '' };
+    else if (S.bin.steps) binMsg = { text: 'Tersisa ' + (S.bin.hi - S.bin.lo + 1) + ' kartu terang. Pilihlah kartu tengahnya.', tone: '' };
   }
 
   var confirmTimer = null;
@@ -796,6 +856,9 @@ function aman(v) {
   function start(data) {
     var restored = (data && data.state && data.state.lin) ? data.state : load();
     if (restored) S = restored;
+    if (!S.answers) S.answers = {};
+    if (!S.history) S.history = [];
+    if (!S.names) S.names = { a: '', b: '' };
     buildDeck($('lin-deck'), ACAK, pickLinear);
     buildDeck($('bin-deck'), URUT, pickBinary);
     buildQuestions();
@@ -808,20 +871,50 @@ function aman(v) {
     $('nama1').addEventListener('input', function (e) { S.names.a = e.target.value; save(); renderRecap(); renderSend(); });
     $('nama2').addEventListener('input', function (e) { S.names.b = e.target.value; save(); renderRecap(); renderSend(); });
     $('refleksi-teks').addEventListener('input', function (e) { S.refleksi = e.target.value; save(); renderRefMeta(); renderProgress(); renderSend(); });
+    $('btn-kecil').addEventListener('click', function () { decide('kecil'); });
+    $('btn-besar').addEventListener('click', function () { decide('besar'); });
+    $('lin-reset').addEventListener('click', function () { resetLinear(); afterChange(); });
+    $('bin-reset').addEventListener('click', function () { resetBinary(); afterChange(); });
+    $('btn-lain').addEventListener('click', function () {
+      var choices = POOL.filter(function (x) { return x !== S.target; });
+      S.target = choices[Math.floor(Math.random() * choices.length)];
+      resetLinear(); resetBinary();
+      afterChange();
+      $('kegiatan1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    $('btn-awal').addEventListener('click', function () {
+      var b = $('btn-awal');
+      if (b.dataset.armed !== '1') {
+        b.dataset.armed = '1';
+        b.textContent = 'Yakin? Tekan lagi untuk menghapus hasil kegiatan';
+        clearTimeout(confirmTimer);
+        confirmTimer = setTimeout(function () { b.dataset.armed = ''; b.textContent = 'Mulai dari awal'; }, 4000);
+        return;
+      }
+      b.dataset.armed = '';
+      b.textContent = 'Mulai dari awal';
+      var keepNames = S.names, keepRef = S.refleksi || '';
+      S = fresh();
+      S.names = keepNames;
+      S.refleksi = keepRef;
+      resetLinear(); resetBinary();
+      afterChange();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
 
     $('btn-cek').addEventListener('click', function () {
       var missing = checks().filter(function (c) { return !c[1]; }).map(function (c) { return c[2]; });
       if (missing.length) {
-        sendMsg('Belum bisa dikirim. Lengkapi dulu: ' + missing.join('; ') + '.', 'warn');
+        sendMsg('Hasil belum dapat dikirim. Lengkapi terlebih dahulu: ' + missing.join('; ') + '.', 'warn');
       } else if (!SCRIPT_URL) {
-        sendMsg('LKPD ini belum dihubungkan ke spreadsheet guru. Tunjukkan Hasil Analisa ke guru atau ambil tangkapan layar.', 'warn');
+        sendMsg('LKPD ini belum terhubung ke spreadsheet guru. Tunjukkan Hasil Analisa kepada guru atau ambil tangkapan layar.', 'warn');
       }
     });
     $('btn-kirim').addEventListener('click', function () {
       $('btn-kirim').href = sendUrl();
       S.sentAt = new Date().toISOString();
       save();
-      sendMsg('Tab baru terbuka. Jika muncul tulisan "Hasil tersimpan", datamu sudah masuk ke spreadsheet guru. Tidak perlu mengirim lagi.', 'good');
+      sendMsg('Tab baru telah terbuka. Jika muncul tulisan "Hasil tersimpan", hasilmu sudah masuk ke spreadsheet guru dan tidak perlu dikirim lagi.', 'good');
     });
 
     var gas = $('gas-code').textContent.trim();
@@ -839,36 +932,6 @@ function aman(v) {
       try {
         navigator.clipboard.writeText(gas).then(done, fallback);
       } catch (e) { fallback(); }
-    });
-    $('btn-kecil').addEventListener('click', function () { decide('kecil'); });
-    $('btn-besar').addEventListener('click', function () { decide('besar'); });
-    $('lin-reset').addEventListener('click', function () { resetLinear(); afterChange(); });
-    $('bin-reset').addEventListener('click', function () { resetBinary(); afterChange(); });
-    $('btn-lain').addEventListener('click', function () {
-      var choices = POOL.filter(function (x) { return x !== S.target; });
-      S.target = choices[Math.floor(Math.random() * choices.length)];
-      resetLinear(); resetBinary();
-      afterChange();
-      $('misi1').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    $('btn-awal').addEventListener('click', function () {
-      var b = $('btn-awal');
-      if (b.dataset.armed !== '1') {
-        b.dataset.armed = '1';
-        b.textContent = 'Yakin? Klik lagi untuk menghapus hasil misi';
-        clearTimeout(confirmTimer);
-        confirmTimer = setTimeout(function () { b.dataset.armed = ''; b.textContent = 'Mulai dari awal'; }, 4000);
-        return;
-      }
-      b.dataset.armed = '';
-      b.textContent = 'Mulai dari awal';
-      var keepNames = S.names, keepRef = S.refleksi || '';
-      S = fresh();
-      S.names = keepNames;
-      S.refleksi = keepRef;
-      resetLinear(); resetBinary();
-      afterChange();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
