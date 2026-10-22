@@ -1,0 +1,875 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Detektif Angka</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@600;800&display=swap">
+<style>
+/* Layout: one column worksheet; each mission is a panel holding a deck of 16 cards, a step counter and a feedback line. */
+:root {
+  --paper: #eef1f7;
+  --surface: #ffffff;
+  --ink: #172033;
+  --muted: #586276;
+  --line: #d7dce7;
+  --cb: #2b3a67;
+  --cb2: #34477d;
+  --accent: #e8a33d;
+  --accent-ink: #3a2600;
+  --range: #dfe7fb;
+  --good: #23784b;
+  --good-bg: #e3f3ea;
+  --warn: #9a4a0f;
+  --warn-bg: #fbeedd;
+  --focus: #3b5bdb;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #10141e; --surface: #182031; --ink: #e8ecf4; --muted: #9ba4b7; --line: #2c3549;
+    --cb: #3b4d88; --cb2: #4659a0; --accent: #f0b456; --accent-ink: #2a1b00; --range: #22305a;
+    --good: #6fcf97; --good-bg: #183528; --warn: #f3b37a; --warn-bg: #3a2814; --focus: #8ea6ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #10141e; --surface: #182031; --ink: #e8ecf4; --muted: #9ba4b7; --line: #2c3549;
+  --cb: #3b4d88; --cb2: #4659a0; --accent: #f0b456; --accent-ink: #2a1b00; --range: #22305a;
+  --good: #6fcf97; --good-bg: #183528; --warn: #f3b37a; --warn-bg: #3a2814; --focus: #8ea6ff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--paper); color: var(--ink);
+  font: 400 16px/1.55 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 56px;
+}
+.wrap { max-width: 880px; margin: 0 auto; display: grid; gap: 20px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2.1rem, 6vw, 3.1rem); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.25rem, 3.4vw, 1.55rem); font-weight: 800; }
+p { margin: 0; }
+.eyebrow { font: 700 0.78rem/1.2 var(--f-body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+
+header.top { display: grid; gap: 10px; padding-top: 8px; }
+header.top .lead { color: var(--muted); max-width: 60ch; font-size: 1.05rem; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.names { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.names label { display: grid; gap: 4px; font-weight: 700; font-size: 0.9rem; }
+.names input {
+  font: inherit; font-weight: 400; padding: 10px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink); min-width: 0;
+}
+.names input:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+
+.progress { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+.pill.done { background: var(--good-bg); color: var(--good); border-color: transparent; }
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; opacity: 0.6; }
+
+.mission-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.mission-head > .mh-text { display: grid; gap: 6px; min-width: 0; flex: 1 1 320px; }
+.rule { color: var(--muted); max-width: 62ch; }
+.stats { display: flex; gap: 8px; flex-wrap: wrap; }
+.stat { display: grid; gap: 2px; padding: 8px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); min-width: 104px; }
+.stat span { font-size: 0.75rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.stat b { font: 800 1.5rem/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.stat.target { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.stat.target span { color: var(--accent-ink); opacity: 0.8; }
+
+.deck { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 640px) { .deck { grid-template-columns: repeat(4, minmax(0, 1fr)); } .names { grid-template-columns: 1fr; } }
+.slot { display: grid; gap: 4px; justify-items: center; border-radius: 12px; padding: 4px; transition: background 0.3s; }
+.slot.inrange { background: var(--range); }
+.slot small { font: 600 0.72rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.card { width: 100%; aspect-ratio: 3 / 4; perspective: 600px; border: 0; background: none; padding: 0; cursor: pointer; border-radius: 10px; }
+.card:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.card .inner { display: block; position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.45s cubic-bezier(.3,.7,.3,1); }
+.card.open .inner { transform: rotateY(180deg); }
+.face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 10px; display: grid; place-items: center; }
+.back { background: repeating-linear-gradient(45deg, var(--cb) 0 7px, var(--cb2) 7px 14px); border: 2px solid var(--cb); color: #ffffffd9; font: 800 clamp(1rem, 3vw, 1.4rem) var(--f-display); }
+.front { transform: rotateY(180deg); background: var(--surface); border: 2px solid var(--line); color: var(--ink); font: 800 clamp(1rem, 3.6vw, 1.5rem) var(--f-mono); font-variant-numeric: tabular-nums; }
+.card.found .front { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.slot.out { opacity: 0.32; }
+.card.next { outline: 3px dashed var(--accent); outline-offset: 3px; }
+.card.hint { animation: pulse 0.9s ease-in-out infinite; }
+.card.shake { animation: shake 0.32s; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 var(--accent); } 50% { box-shadow: 0 0 0 6px var(--accent); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.msg { padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); min-height: 48px; }
+.msg.good { background: var(--good-bg); color: var(--good); border-color: transparent; font-weight: 700; }
+.msg.warn { background: var(--warn-bg); color: var(--warn); border-color: transparent; }
+
+.decide { display: grid; gap: 10px; padding: 14px; border-radius: 12px; border: 2px solid var(--accent); }
+.decide p { font-weight: 700; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  font: 700 0.95rem var(--f-body); padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  display: inline-flex; align-items: center; text-decoration: none;
+}
+.btn:hover { border-color: var(--ink); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn.send { background: var(--good); color: #fff; border-color: var(--good); font-size: 1rem; padding: 12px 20px; }
+.btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.checklist { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checklist li { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.checklist li::before { content: ""; flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); }
+.checklist li.ok { color: var(--ink); }
+.checklist li.ok::before { background: var(--good); border-color: var(--good); box-shadow: inset 0 0 0 3px var(--surface); }
+details.guru { background: var(--surface); border: 1px dashed var(--line); border-radius: 16px; padding: 16px 20px; }
+details.guru summary { cursor: pointer; font-weight: 700; }
+details.guru[open] summary { margin-bottom: 12px; }
+details.guru ol { margin: 0 0 12px; padding-left: 20px; display: grid; gap: 6px; }
+.codebox { position: relative; display: grid; gap: 8px; min-width: 0; }
+.codebox pre { margin: 0; overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px; font: 600 0.78rem/1.5 var(--f-mono); color: var(--ink); max-height: 320px; }
+
+.compare { display: grid; gap: 12px; }
+.bar { display: grid; grid-template-columns: 120px minmax(0, 1fr) 92px; align-items: center; gap: 10px; }
+.bar .name { font-weight: 700; }
+.bar .track { height: 22px; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); overflow: hidden; }
+.bar .fill { display: block; height: 100%; background: var(--cb2); border-radius: 5px 0 0 5px; transition: width 0.6s; }
+.bar.bin .fill { background: var(--accent); }
+.bar .val { font: 800 0.95rem var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; }
+@media (max-width: 480px) { .bar { grid-template-columns: 1fr 76px; } .bar .track { grid-column: 1 / -1; grid-row: 2; } }
+
+.q { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.q:first-of-type { border-top: 0; padding-top: 0; }
+.q p.ask { font-weight: 700; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { font: 400 0.95rem var(--f-body); padding: 9px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--paper); color: var(--ink); cursor: pointer; text-align: left; }
+.opt:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.opt[disabled] { cursor: default; }
+.opt.right { background: var(--good-bg); color: var(--good); border-color: var(--good); font-weight: 700; }
+.opt.wrong { background: var(--warn-bg); color: var(--warn); border-color: var(--warn); }
+.explain { font-size: 0.95rem; color: var(--muted); }
+
+.recap table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.recap th, .recap td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+.recap th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.recap td.num { font-family: var(--f-mono); font-weight: 800; }
+.tablebox { overflow-x: auto; }
+.recap-top { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.recap-top div { display: grid; }
+.recap-top span { font-size: 0.78rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.recap-top b { font-size: 1.05rem; }
+.note { font-size: 0.92rem; color: var(--muted); }
+@media (max-width: 480px) { .recap th, .recap td { padding: 8px 6px; font-size: 0.85rem; } }
+.reflabel { font-weight: 700; }
+#refleksi-teks {
+  font: inherit; width: 100%; min-height: 150px; padding: 12px 14px; border-radius: 12px; line-height: 1.55;
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink); resize: vertical;
+}
+#refleksi-teks:focus-visible { outline: 3px solid var(--focus); outline-offset: 1px; }
+.refmeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card .inner, .bar .fill, .slot { transition: none; }
+  .card.hint, .card.shake { animation: none; }
+  .card.hint { outline: 3px solid var(--accent); outline-offset: 3px; }
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">LKPD Interaktif · KKA Kelas X · Bab III Perbandingan Algoritma</span>
+    <h1>Detektif Angka</h1>
+    <p class="lead">Cari angka di balik 16 kartu dengan dua cara: Linear Search dan Binary Search. Hitung langkahnya, lalu bandingkan mana yang lebih cepat.</p>
+  </header>
+
+  <section class="panel" aria-label="Identitas">
+    <div class="names">
+      <label for="nama1">Nama<input id="nama1" type="text" autocomplete="off" placeholder="Tulis namamu"></label>
+      <label for="nama2">Kelas<input id="nama2" type="text" autocomplete="off" placeholder="Contoh: X-1"></label>
+    </div>
+    <div class="progress" id="progress"></div>
+  </section>
+
+  <!-- Misi 1 -->
+  <section class="panel" id="misi1" aria-labelledby="h-m1">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Misi 1</span>
+        <h2 id="h-m1">Linear Search: periksa satu per satu</h2>
+        <p class="rule">Kartu disusun acak. Buka kartu berurutan dari nomor 1 sampai kamu menemukan angka yang dicari.</p>
+      </div>
+      <div class="stats">
+        <div class="stat target"><span>Dicari</span><b class="tval">44</b></div>
+        <div class="stat"><span>Langkah</span><b id="lin-steps">0</b></div>
+      </div>
+    </div>
+    <div class="deck" id="lin-deck"></div>
+    <p class="msg" id="lin-msg" aria-live="polite">Mulai dari kartu nomor 1.</p>
+    <div class="row"><button class="btn" type="button" id="lin-reset">Ulangi Misi 1</button></div>
+  </section>
+
+  <!-- Misi 2 -->
+  <section class="panel" id="misi2" aria-labelledby="h-m2">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Misi 2</span>
+        <h2 id="h-m2">Binary Search: langsung ke tengah</h2>
+        <p class="rule">Kartu sudah urut dari kecil ke besar. Buka kartu tengah dari kartu yang masih terang. Kalau jumlahnya genap, pilih tengah sebelah kiri. Lalu tentukan: angka yang dicari lebih besar atau lebih kecil?</p>
+      </div>
+      <div class="stats">
+        <div class="stat target"><span>Dicari</span><b class="tval">44</b></div>
+        <div class="stat"><span>Langkah</span><b id="bin-steps">0</b></div>
+      </div>
+    </div>
+    <div class="deck" id="bin-deck"></div>
+    <div class="decide" id="bin-decide" hidden>
+      <p id="bin-q">Angka yang dicari lebih besar atau lebih kecil?</p>
+      <div class="row">
+        <button class="btn" type="button" id="btn-kecil">Lebih kecil, buang kanan</button>
+        <button class="btn" type="button" id="btn-besar">Lebih besar, buang kiri</button>
+      </div>
+    </div>
+    <p class="msg" id="bin-msg" aria-live="polite">Ada 16 kartu terang. Pilih kartu tengahnya.</p>
+    <div class="row"><button class="btn" type="button" id="bin-reset">Ulangi Misi 2</button></div>
+  </section>
+
+  <!-- Misi 3 -->
+  <section class="panel" id="misi3" aria-labelledby="h-m3">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Misi 3</span>
+        <h2 id="h-m3">Bandingkan hasilnya</h2>
+        <p class="rule">Lihat jumlah langkah kedua cara, lalu jawab tiga pertanyaan. Setiap pertanyaan hanya bisa dijawab sekali.</p>
+      </div>
+    </div>
+    <div class="compare" id="compare"></div>
+    <div id="questions"></div>
+  </section>
+
+  <!-- Rekap -->
+  <section class="panel recap" id="rekap" aria-labelledby="h-rk">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Rekap</span>
+        <h2 id="h-rk">Hasil Analisa</h2>
+        <p class="rule">Tunjukkan rekap ini ke guru atau ambil tangkapan layar.</p>
+      </div>
+    </div>
+    <div class="recap-top" id="recap-top"></div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Angka dicari</th><th>Linear Search</th><th>Binary Search</th><th>Hasil</th></tr></thead>
+        <tbody id="history"></tbody>
+      </table>
+    </div>
+    <div class="row">
+      <button class="btn primary" type="button" id="btn-lain">Tantangan: coba angka lain</button>
+      <button class="btn" type="button" id="btn-awal">Mulai dari awal</button>
+    </div>
+    <p class="note">Tantangan memilih angka acak, kadang angka yang tidak ada di kartu. Perhatikan: berapa langkah Binary Search paling banyak?</p>
+  </section>
+
+  <!-- Refleksi -->
+  <section class="panel" id="refleksi" aria-labelledby="h-rf">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Refleksi</span>
+        <h2 id="h-rf">Cara mana yang terbaik?</h2>
+        <p class="rule">Setelah mencoba kedua cara, jelaskan dengan kata-katamu sendiri: mana yang terbaik antara Linear Search dan Binary Search, dan kapan masing-masing cocok dipakai?</p>
+      </div>
+    </div>
+    <label class="reflabel" for="refleksi-teks">Jawaban refleksimu</label>
+    <textarea id="refleksi-teks" rows="6" maxlength="1500" placeholder="Menurut saya, cara yang terbaik adalah ... karena ... Tetapi cara yang lain lebih cocok jika ..."></textarea>
+    <div class="refmeta"><span id="ref-count">0 kata</span><span id="ref-status">Tersimpan otomatis di perangkat ini</span></div>
+    <p class="note">Petunjuk: lihat jumlah langkah di Hasil Analisa, apakah datanya sudah urut, dan seberapa banyak datanya.</p>
+  </section>
+
+  <!-- Kirim -->
+  <section class="panel" id="kirim" aria-labelledby="h-kr">
+    <div class="mission-head">
+      <div class="mh-text">
+        <span class="eyebrow">Langkah terakhir</span>
+        <h2 id="h-kr">Kirim hasil ke guru</h2>
+        <p class="rule">Hasilmu masuk otomatis ke spreadsheet guru. Lengkapi semua bagian di bawah, lalu tekan tombol kirim satu kali saja.</p>
+      </div>
+    </div>
+    <ul class="checklist" id="checklist"></ul>
+    <div class="row">
+      <button class="btn send" type="button" id="btn-cek">Kirim ke spreadsheet guru</button>
+      <a class="btn send" id="btn-kirim" href="https://script.google.com/" target="_blank" rel="noopener" hidden>Kirim ke spreadsheet guru</a>
+    </div>
+    <p class="msg" id="kirim-msg" aria-live="polite" hidden></p>
+  </section>
+
+  <details class="guru" id="panduan-guru">
+    <summary>Untuk guru: hubungkan LKPD ini ke Google Sheets</summary>
+    <ol>
+      <li>Buka spreadsheet tempat hasil akan disimpan, misalnya "Hasil LKPD Detektif Angka – KKA Kelas X".</li>
+      <li>Klik menu <b>Ekstensi</b> lalu <b>Apps Script</b>.</li>
+      <li>Hapus kode yang ada, tempel kode di bawah, lalu klik <b>Simpan</b>.</li>
+      <li>Klik <b>Terapkan</b>, pilih <b>Deployment baru</b>, lalu pilih jenis <b>Aplikasi web</b>.</li>
+      <li>Isi <b>Jalankan sebagai: Saya</b> dan <b>Yang memiliki akses: Siapa saja</b>, lalu klik <b>Terapkan</b>.</li>
+      <li>Izinkan akses. Jika muncul peringatan, klik <b>Lanjutan</b> lalu buka proyeknya.</li>
+      <li>Salin URL aplikasi web yang berakhiran <b>/exec</b>, lalu kirimkan ke Claude untuk dipasang di LKPD ini.</li>
+    </ol>
+    <div class="codebox">
+      <pre id="gas-pre"></pre>
+      <div class="row"><button class="btn" type="button" id="btn-salin">Salin kode</button><span class="note" id="salin-status" aria-live="polite"></span></div>
+    </div>
+  </details>
+</div>
+
+<script type="text/plain" id="gas-code">
+// LKPD Detektif Angka: menyimpan hasil siswa ke sheet pertama.
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheets()[0];
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow(['Waktu', 'Nama', 'Kelas', 'Langkah Linear (44)', 'Langkah Binary (44)', 'Skor Soal (dari 3)', 'Jawaban Soal', 'Refleksi', 'Riwayat Percobaan']);
+    }
+    var kolom = ['nama', 'kelas', 'linear', 'binary', 'skor', 'jawaban', 'refleksi', 'riwayat'];
+    sheet.appendRow([new Date()].concat(kolom.map(function (k) { return aman(p[k]); })));
+  } finally {
+    lock.releaseLock();
+  }
+  var nama = String(p.nama || 'kamu').replace(/[<>&"']/g, '');
+  return HtmlService.createHtmlOutput(
+    '<div style="font-family:sans-serif;max-width:480px;margin:48px auto;padding:24px;text-align:center">' +
+    '<h2>Hasil tersimpan</h2><p>Terima kasih, ' + nama + '. Hasil LKPD Detektif Angka sudah masuk ke spreadsheet guru. Kamu boleh menutup tab ini.</p></div>'
+  ).setTitle('Hasil tersimpan');
+}
+
+function aman(v) {
+  var s = String(v == null ? '' : v).slice(0, 2000);
+  return /^[=+\-@]/.test(s) ? "'" + s : s;
+}
+</script>
+
+<script>
+(function () {
+  var ACAK = [40, 7, 58, 22, 3, 49, 15, 67, 31, 11, 53, 27, 62, 18, 44, 36];
+  var URUT = ACAK.slice().sort(function (a, b) { return a - b; });
+  var POOL = URUT.concat([5, 50, 70]);
+  var KEY = 'detektif-angka-v1';
+  // URL aplikasi web Apps Script milik guru (berakhiran /exec). Kosong = belum terhubung.
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwsGheMLScux_2_LRsORbY5KymLwL-gU31C1rnueSfmtXcN5biz8eQJa2_eLhGaoqHu/exec';
+
+  var QUESTIONS = [
+    { id: 'q1', ask: 'Dari percobaan mencari angka 44, cara mana yang lebih cepat?',
+      opts: ['Linear Search', 'Binary Search'], right: 1,
+      why: 'Binary Search membuang separuh kartu setiap langkah, jadi 44 ketemu dalam 4 langkah. Linear Search butuh 15 langkah.' },
+    { id: 'q2', ask: 'Apa syarat agar Binary Search bisa dipakai?',
+      opts: ['Data harus sudah urut', 'Jumlah data harus genap', 'Data harus sedikit'], right: 0,
+      why: 'Binary Search memutuskan buang kiri atau kanan dari kartu tengah. Itu hanya benar kalau data sudah urut.' },
+    { id: 'q3', ask: 'Panitia punya daftar 20 nama tamu yang ditulis sesuai urutan datang, belum diurutkan. Cara mana yang cocok untuk mencari satu nama?',
+      opts: ['Linear Search', 'Binary Search'], right: 0,
+      why: 'Datanya belum urut, jadi Binary Search tidak bisa langsung dipakai. Linear Search memeriksa satu per satu dan tetap berhasil.' }
+  ];
+
+  function fresh() {
+    return {
+      names: { a: '', b: '' },
+      target: 44,
+      lin: { i: 0, steps: 0, done: false, found: false, opened: [] },
+      bin: { lo: 0, hi: 15, steps: 0, done: false, found: false, opened: [], waiting: null, wrong: 0 },
+      recorded: false,
+      refleksi: '',
+      answers: {},
+      history: []
+    };
+  }
+  var S = fresh();
+  var linMsg = { text: 'Mulai dari kartu nomor 1.', tone: '' };
+  var binMsg = { text: 'Ada 16 kartu terang. Pilih kartu tengahnya.', tone: '' };
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) { var d = JSON.parse(raw); if (d && d.lin && d.bin) return d; }
+    } catch (e) {}
+    return null;
+  }
+
+  // ---------- deck building ----------
+  function buildDeck(el, values, onPick) {
+    el.innerHTML = '';
+    values.forEach(function (v, idx) {
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'card';
+      btn.innerHTML = '<span class="inner"><span class="face back">?</span><span class="face front">' + v + '</span></span>';
+      btn.addEventListener('click', function () { onPick(idx, btn); });
+      var lab = document.createElement('small');
+      lab.textContent = idx + 1;
+      slot.appendChild(btn);
+      slot.appendChild(lab);
+      el.appendChild(slot);
+    });
+  }
+  function shake(btn) {
+    btn.classList.remove('shake');
+    void btn.offsetWidth;
+    btn.classList.add('shake');
+  }
+
+  // ---------- Misi 1: Linear ----------
+  function pickLinear(idx, btn) {
+    var L = S.lin;
+    if (L.done) { linMsg = { text: 'Misi 1 sudah selesai. Klik "Ulangi Misi 1" untuk mencoba lagi.', tone: '' }; renderLinear(); return; }
+    if (L.opened.indexOf(idx) !== -1) return;
+    if (idx !== L.i) {
+      shake(btn);
+      linMsg = { text: 'Linear Search memeriksa kartu berurutan dari kiri. Buka kartu nomor ' + (L.i + 1) + ' dulu.', tone: 'warn' };
+      renderLinear();
+      return;
+    }
+    L.opened.push(idx);
+    L.steps++;
+    var v = ACAK[idx];
+    if (v === S.target) {
+      L.done = true; L.found = true;
+      linMsg = { text: 'Ketemu! Angka ' + S.target + ' ada di kartu nomor ' + (idx + 1) + '. Kamu membuka ' + L.steps + ' kartu.', tone: 'good' };
+    } else {
+      L.i++;
+      if (L.i >= ACAK.length) {
+        L.done = true; L.found = false;
+        linMsg = { text: 'Semua kartu sudah dibuka dan ' + S.target + ' tidak ada. Linear Search membuka ' + L.steps + ' kartu.', tone: 'good' };
+      } else {
+        linMsg = { text: 'Bukan ' + v + '. Lanjut ke kartu nomor ' + (L.i + 1) + '.', tone: '' };
+      }
+    }
+    afterChange();
+  }
+
+  function renderLinear() {
+    var L = S.lin;
+    var slots = $('lin-deck').children;
+    for (var k = 0; k < slots.length; k++) {
+      var btn = slots[k].firstChild;
+      var open = L.opened.indexOf(k) !== -1;
+      btn.classList.toggle('open', open);
+      btn.classList.toggle('found', open && L.found && ACAK[k] === S.target);
+      btn.classList.toggle('next', !L.done && k === L.i);
+      btn.setAttribute('aria-label', 'Kartu nomor ' + (k + 1) + (open ? ', berisi ' + ACAK[k] : ', tertutup'));
+    }
+    $('lin-steps').textContent = L.steps;
+    var m = $('lin-msg');
+    m.textContent = linMsg.text;
+    m.className = 'msg' + (linMsg.tone ? ' ' + linMsg.tone : '');
+  }
+
+  // ---------- Misi 2: Binary ----------
+  function mid() { return Math.floor((S.bin.lo + S.bin.hi) / 2); }
+
+  function pickBinary(idx, btn) {
+    var B = S.bin;
+    if (B.done) { binMsg = { text: 'Misi 2 sudah selesai. Klik "Ulangi Misi 2" untuk mencoba lagi.', tone: '' }; renderBinary(); return; }
+    if (B.waiting !== null) {
+      shake(btn);
+      binMsg = { text: 'Jawab dulu: ' + S.target + ' lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?', tone: 'warn' };
+      renderBinary();
+      return;
+    }
+    if (idx < B.lo || idx > B.hi) {
+      shake(btn);
+      binMsg = { text: 'Kartu itu sudah dibuang. Pilih dari kartu yang masih terang.', tone: 'warn' };
+      renderBinary();
+      return;
+    }
+    var m = mid();
+    if (idx !== m) {
+      shake(btn);
+      B.wrong++;
+      var count = B.hi - B.lo + 1;
+      var t = 'Belum tepat. Ada ' + count + ' kartu terang, pilih yang di tengah.';
+      if (count % 2 === 0) t += ' Jumlahnya genap, jadi pilih tengah sebelah kiri.';
+      if (B.wrong >= 2) t += ' Kartu yang berkedip adalah kartu tengahnya.';
+      binMsg = { text: t, tone: 'warn' };
+      renderBinary();
+      return;
+    }
+    B.wrong = 0;
+    B.opened.push(idx);
+    B.steps++;
+    var v = URUT[idx];
+    if (v === S.target) {
+      B.done = true; B.found = true;
+      binMsg = { text: 'Ketemu! Angka ' + S.target + ' ditemukan dalam ' + B.steps + ' langkah.', tone: 'good' };
+    } else {
+      B.waiting = idx;
+      binMsg = { text: 'Kartu tengah berisi ' + v + '. Sekarang tentukan arah pencarian.', tone: '' };
+    }
+    afterChange();
+  }
+
+  function decide(choice) {
+    var B = S.bin;
+    if (B.waiting === null) return;
+    var v = URUT[B.waiting];
+    var correct = S.target > v ? 'besar' : 'kecil';
+    if (choice !== correct) {
+      binMsg = { text: 'Coba lagi. Bandingkan ' + S.target + ' dengan ' + v + ': mana yang lebih besar?', tone: 'warn' };
+      renderBinary();
+      return;
+    }
+    if (choice === 'besar') B.lo = B.waiting + 1; else B.hi = B.waiting - 1;
+    B.waiting = null;
+    if (B.lo > B.hi) {
+      B.done = true; B.found = false;
+      binMsg = { text: 'Kartu terang habis, jadi ' + S.target + ' tidak ada. Binary Search hanya butuh ' + B.steps + ' langkah untuk memastikannya.', tone: 'good' };
+    } else {
+      var left = B.hi - B.lo + 1;
+      binMsg = { text: 'Tepat! Separuh kartu dibuang. Sisa ' + left + ' kartu terang, pilih kartu tengahnya.', tone: '' };
+    }
+    afterChange();
+  }
+
+  function renderBinary() {
+    var B = S.bin;
+    var slots = $('bin-deck').children;
+    var m = (!B.done && B.waiting === null) ? mid() : -1;
+    for (var k = 0; k < slots.length; k++) {
+      var slot = slots[k];
+      var btn = slot.firstChild;
+      var open = B.opened.indexOf(k) !== -1;
+      var inRange = k >= B.lo && k <= B.hi;
+      var isFound = open && B.found && URUT[k] === S.target;
+      slot.classList.toggle('out', !inRange && !isFound);
+      slot.classList.toggle('inrange', inRange && !B.done);
+      btn.classList.toggle('open', open);
+      btn.classList.toggle('found', isFound);
+      btn.classList.toggle('hint', k === m && B.wrong >= 2);
+      btn.setAttribute('aria-label', 'Kartu nomor ' + (k + 1) + (open ? ', berisi ' + URUT[k] : ', tertutup') + (inRange ? '' : ', sudah dibuang'));
+    }
+    $('bin-steps').textContent = B.steps;
+    var d = $('bin-decide');
+    d.hidden = B.waiting === null;
+    if (B.waiting !== null) {
+      $('bin-q').textContent = 'Angka yang dicari (' + S.target + ') lebih besar atau lebih kecil dari ' + URUT[B.waiting] + '?';
+    }
+    var el = $('bin-msg');
+    el.textContent = binMsg.text;
+    el.className = 'msg' + (binMsg.tone ? ' ' + binMsg.tone : '');
+  }
+
+  // ---------- Misi 3 ----------
+  function renderCompare() {
+    var c = $('compare');
+    var L = S.lin, B = S.bin;
+    if (!L.done || !B.done) {
+      c.innerHTML = '<p class="msg">Selesaikan Misi 1 dan Misi 2 untuk angka ' + S.target + ', nanti perbandingan langkahnya muncul di sini.</p>';
+      return;
+    }
+    var max = 16;
+    c.innerHTML =
+      '<div class="bar lin"><span class="name">Linear Search</span><span class="track"><span class="fill" style="width:' + (L.steps / max * 100) + '%"></span></span><span class="val">' + L.steps + ' langkah</span></div>' +
+      '<div class="bar bin"><span class="name">Binary Search</span><span class="track"><span class="fill" style="width:' + (B.steps / max * 100) + '%"></span></span><span class="val">' + B.steps + ' langkah</span></div>' +
+      '<p class="note">Panjang batang dihitung dari 16 kartu, yaitu langkah terbanyak yang mungkin.</p>';
+  }
+
+  function buildQuestions() {
+    var box = $('questions');
+    box.innerHTML = '';
+    QUESTIONS.forEach(function (q, n) {
+      var wrap = document.createElement('div');
+      wrap.className = 'q';
+      wrap.id = 'wrap-' + q.id;
+      var p = document.createElement('p');
+      p.className = 'ask';
+      p.textContent = (n + 1) + '. ' + q.ask;
+      var opts = document.createElement('div');
+      opts.className = 'opts';
+      q.opts.forEach(function (o, oi) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'opt';
+        b.id = q.id + '-o' + oi;
+        b.textContent = o;
+        b.addEventListener('click', function () {
+          if (S.answers[q.id] !== undefined) return;
+          S.answers[q.id] = oi;
+          afterChange();
+        });
+        opts.appendChild(b);
+      });
+      var ex = document.createElement('p');
+      ex.className = 'explain';
+      ex.id = q.id + '-ex';
+      ex.setAttribute('aria-live', 'polite');
+      wrap.appendChild(p);
+      wrap.appendChild(opts);
+      wrap.appendChild(ex);
+      box.appendChild(wrap);
+    });
+  }
+
+  function renderQuestions() {
+    QUESTIONS.forEach(function (q) {
+      var a = S.answers[q.id];
+      q.opts.forEach(function (o, oi) {
+        var b = $(q.id + '-o' + oi);
+        b.disabled = a !== undefined;
+        b.classList.toggle('right', a !== undefined && oi === q.right);
+        b.classList.toggle('wrong', a !== undefined && oi === a && a !== q.right);
+      });
+      var ex = $(q.id + '-ex');
+      if (a === undefined) ex.textContent = '';
+      else ex.textContent = (a === q.right ? 'Benar. ' : 'Belum tepat. ') + q.why;
+    });
+  }
+
+  function score() {
+    var s = 0;
+    QUESTIONS.forEach(function (q) { if (S.answers[q.id] === q.right) s++; });
+    return s;
+  }
+  function answeredCount() {
+    return QUESTIONS.filter(function (q) { return S.answers[q.id] !== undefined; }).length;
+  }
+
+  // ---------- Rekap ----------
+  function renderRecap() {
+    var nama = (S.names.a || '').trim() || 'Belum diisi';
+    var kelas = (S.names.b || '').trim() || 'Belum diisi';
+    var ans = answeredCount();
+    $('recap-top').innerHTML =
+      '<div><span>Nama</span><b id="rk-nama"></b></div>' +
+      '<div><span>Kelas</span><b id="rk-kelas"></b></div>' +
+      '<div><span>Skor pertanyaan</span><b>' + score() + ' dari 3' + (ans < 3 ? ' (' + (3 - ans) + ' belum dijawab)' : '') + '</b></div>';
+    $('rk-nama').textContent = nama;
+    $('rk-kelas').textContent = kelas;
+    var tb = $('history');
+    if (!S.history.length) {
+      tb.innerHTML = '<tr><td colspan="4" class="note">Belum ada percobaan yang selesai. Selesaikan Misi 1 dan 2.</td></tr>';
+      return;
+    }
+    tb.innerHTML = S.history.map(function (h) {
+      return '<tr><td class="num">' + h.target + '</td><td class="num">' + h.lin + ' langkah</td><td class="num">' + h.bin + ' langkah</td><td>' + (h.found ? 'Ditemukan' : 'Tidak ada di kartu') + '</td></tr>';
+    }).join('');
+  }
+
+  function renderProgress() {
+    var items = [
+      ['Misi 1', S.lin.done],
+      ['Misi 2', S.bin.done],
+      ['Misi 3', answeredCount() === 3],
+      ['Refleksi', wordCount(S.refleksi) >= 5]
+    ];
+    $('progress').innerHTML = items.map(function (it) {
+      return '<span class="pill' + (it[1] ? ' done' : '') + '"><span class="dot"></span>' + it[0] + ' · ' + (it[1] ? 'selesai' : 'belum') + '</span>';
+    }).join('');
+  }
+
+  function wordCount(s) {
+    return (s || '').trim().split(/\s+/).filter(Boolean).length;
+  }
+  function renderRefMeta() {
+    $('ref-count').textContent = wordCount(S.refleksi) + ' kata';
+  }
+
+  // ---------- Kirim ke spreadsheet ----------
+  function result44() {
+    return S.history.filter(function (h) { return h.target === 44; })[0] || null;
+  }
+  function checks() {
+    return [
+      ['Nama sudah diisi', !!(S.names.a || '').trim(), 'isi nama'],
+      ['Kelas sudah diisi', !!(S.names.b || '').trim(), 'isi kelas'],
+      ['Misi 1 dan Misi 2 selesai untuk angka 44', !!result44(), 'selesaikan Misi 1 dan Misi 2 untuk angka 44'],
+      ['Tiga pertanyaan Misi 3 sudah dijawab', answeredCount() === 3, 'jawab tiga pertanyaan Misi 3'],
+      ['Refleksi minimal 5 kata', wordCount(S.refleksi) >= 5, 'tulis refleksi minimal 5 kata']
+    ];
+  }
+  function payload() {
+    var h = result44();
+    var jaw = QUESTIONS.map(function (q, n) {
+      var a = S.answers[q.id];
+      return (n + 1) + ': ' + (a === undefined ? '-' : q.opts[a] + (a === q.right ? ' (benar)' : ' (salah)'));
+    }).join('; ');
+    var riw = S.history.map(function (r) { return r.target + ': Linear ' + r.lin + ', Binary ' + r.bin; }).join('; ');
+    return {
+      nama: (S.names.a || '').trim(),
+      kelas: (S.names.b || '').trim(),
+      linear: h ? h.lin : '',
+      binary: h ? h.bin : '',
+      skor: score(),
+      jawaban: jaw,
+      refleksi: (S.refleksi || '').trim().slice(0, 1500),
+      riwayat: riw
+    };
+  }
+  function sendUrl() {
+    var p = payload();
+    return SCRIPT_URL + '?' + Object.keys(p).map(function (k) {
+      return encodeURIComponent(k) + '=' + encodeURIComponent(p[k]);
+    }).join('&');
+  }
+  function renderSend() {
+    var list = checks();
+    var ready = list.every(function (c) { return c[1]; });
+    $('checklist').innerHTML = list.map(function (c) {
+      return '<li class="' + (c[1] ? 'ok' : '') + '">' + c[0] + '</li>';
+    }).join('');
+    var canSend = ready && !!SCRIPT_URL;
+    var a = $('btn-kirim');
+    a.hidden = !canSend;
+    $('btn-cek').hidden = canSend;
+    if (canSend) a.href = sendUrl();
+    $('panduan-guru').hidden = !!SCRIPT_URL;
+  }
+  function sendMsg(text, tone) {
+    var m = $('kirim-msg');
+    m.hidden = !text;
+    m.textContent = text || '';
+    m.className = 'msg' + (tone ? ' ' + tone : '');
+  }
+
+  function renderTargets() {
+    var els = document.querySelectorAll('.tval');
+    for (var i = 0; i < els.length; i++) els[i].textContent = S.target;
+  }
+
+  function renderAll() {
+    renderTargets();
+    renderLinear();
+    renderBinary();
+    renderCompare();
+    renderQuestions();
+    renderRecap();
+    renderRefMeta();
+    renderProgress();
+    renderSend();
+  }
+
+  function afterChange() {
+    if (S.lin.done && S.bin.done && !S.recorded) {
+      S.recorded = true;
+      S.history.push({ target: S.target, lin: S.lin.steps, bin: S.bin.steps, found: S.lin.found });
+    }
+    save();
+    renderAll();
+  }
+
+  // ---------- resets ----------
+  function resetLinear() {
+    S.lin = { i: 0, steps: 0, done: false, found: false, opened: [] };
+    S.recorded = false;
+    linMsg = { text: 'Mulai dari kartu nomor 1.', tone: '' };
+  }
+  function resetBinary() {
+    S.bin = { lo: 0, hi: 15, steps: 0, done: false, found: false, opened: [], waiting: null, wrong: 0 };
+    S.recorded = false;
+    binMsg = { text: 'Ada 16 kartu terang. Pilih kartu tengahnya.', tone: '' };
+  }
+
+  function msgsFromState() {
+    if (S.lin.done) linMsg = { text: S.lin.found ? 'Ketemu! Kamu membuka ' + S.lin.steps + ' kartu.' : 'Angka ' + S.target + ' tidak ada. Linear Search membuka ' + S.lin.steps + ' kartu.', tone: 'good' };
+    else if (S.lin.steps) linMsg = { text: 'Lanjut ke kartu nomor ' + (S.lin.i + 1) + '.', tone: '' };
+    if (S.bin.done) binMsg = { text: S.bin.found ? 'Ketemu dalam ' + S.bin.steps + ' langkah.' : 'Angka ' + S.target + ' tidak ada. Binary Search butuh ' + S.bin.steps + ' langkah.', tone: 'good' };
+    else if (S.bin.waiting !== null) binMsg = { text: 'Kartu tengah berisi ' + URUT[S.bin.waiting] + '. Tentukan arah pencarian.', tone: '' };
+    else if (S.bin.steps) binMsg = { text: 'Sisa ' + (S.bin.hi - S.bin.lo + 1) + ' kartu terang, pilih kartu tengahnya.', tone: '' };
+  }
+
+  var confirmTimer = null;
+
+  function start(data) {
+    var restored = (data && data.state && data.state.lin) ? data.state : load();
+    if (restored) S = restored;
+    buildDeck($('lin-deck'), ACAK, pickLinear);
+    buildDeck($('bin-deck'), URUT, pickBinary);
+    buildQuestions();
+    $('nama1').value = S.names.a || '';
+    $('nama2').value = S.names.b || '';
+    $('refleksi-teks').value = S.refleksi || '';
+    msgsFromState();
+    renderAll();
+
+    $('nama1').addEventListener('input', function (e) { S.names.a = e.target.value; save(); renderRecap(); renderSend(); });
+    $('nama2').addEventListener('input', function (e) { S.names.b = e.target.value; save(); renderRecap(); renderSend(); });
+    $('refleksi-teks').addEventListener('input', function (e) { S.refleksi = e.target.value; save(); renderRefMeta(); renderProgress(); renderSend(); });
+
+    $('btn-cek').addEventListener('click', function () {
+      var missing = checks().filter(function (c) { return !c[1]; }).map(function (c) { return c[2]; });
+      if (missing.length) {
+        sendMsg('Belum bisa dikirim. Lengkapi dulu: ' + missing.join('; ') + '.', 'warn');
+      } else if (!SCRIPT_URL) {
+        sendMsg('LKPD ini belum dihubungkan ke spreadsheet guru. Tunjukkan Hasil Analisa ke guru atau ambil tangkapan layar.', 'warn');
+      }
+    });
+    $('btn-kirim').addEventListener('click', function () {
+      $('btn-kirim').href = sendUrl();
+      S.sentAt = new Date().toISOString();
+      save();
+      sendMsg('Tab baru terbuka. Jika muncul tulisan "Hasil tersimpan", datamu sudah masuk ke spreadsheet guru. Tidak perlu mengirim lagi.', 'good');
+    });
+
+    var gas = $('gas-code').textContent.trim();
+    $('gas-pre').textContent = gas;
+    $('btn-salin').addEventListener('click', function () {
+      var done = function () { $('salin-status').textContent = 'Kode tersalin.'; };
+      var fallback = function () {
+        var r = document.createRange();
+        r.selectNodeContents($('gas-pre'));
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        $('salin-status').textContent = 'Kode sudah dipilih. Tekan Ctrl+C untuk menyalin.';
+      };
+      try {
+        navigator.clipboard.writeText(gas).then(done, fallback);
+      } catch (e) { fallback(); }
+    });
+    $('btn-kecil').addEventListener('click', function () { decide('kecil'); });
+    $('btn-besar').addEventListener('click', function () { decide('besar'); });
+    $('lin-reset').addEventListener('click', function () { resetLinear(); afterChange(); });
+    $('bin-reset').addEventListener('click', function () { resetBinary(); afterChange(); });
+    $('btn-lain').addEventListener('click', function () {
+      var choices = POOL.filter(function (x) { return x !== S.target; });
+      S.target = choices[Math.floor(Math.random() * choices.length)];
+      resetLinear(); resetBinary();
+      afterChange();
+      $('misi1').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    $('btn-awal').addEventListener('click', function () {
+      var b = $('btn-awal');
+      if (b.dataset.armed !== '1') {
+        b.dataset.armed = '1';
+        b.textContent = 'Yakin? Klik lagi untuk menghapus hasil misi';
+        clearTimeout(confirmTimer);
+        confirmTimer = setTimeout(function () { b.dataset.armed = ''; b.textContent = 'Mulai dari awal'; }, 4000);
+        return;
+      }
+      b.dataset.armed = '';
+      b.textContent = 'Mulai dari awal';
+      var keepNames = S.names, keepRef = S.refleksi || '';
+      S = fresh();
+      S.names = keepNames;
+      S.refleksi = keepRef;
+      resetLinear(); resetBinary();
+      afterChange();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
+      window.claude.hot.snapshot(function () { return { state: S }; });
+    }
+  }
+
+  if (window.claude && window.claude.hot && window.claude.hot.ready) window.claude.hot.ready(start);
+  else start((window.claude && window.claude.hot && window.claude.hot.data) || {});
+})();
+</script>
+
+</body></html>
